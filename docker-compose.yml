@@ -1,0 +1,31 @@
+version: '3.1'
+
+services:
+  # redis: # Eventually will want a redis service.. Maybe only for production?
+  #   image: "redis:alpine"
+  db:
+    image: "postgres:9.4"
+    ports:
+      - "5432:5432"
+    environment:
+     POSTGRES_PASSWORD: 123456
+     POSTGRES_USER: postgres
+
+  site:
+    build:
+      context: .
+      args:
+        - NODE_ENV=development
+    command: "npm start"
+    ports:
+      - "8080:3000"
+      - "9229:9229"
+    volumes:
+      - .:/usr/src/app:delegated # Used for hot-reloading see https://docs.docker.com/compose/compose-file/#caching-options-for-volume-mounts-docker-for-mac for more details
+    environment:
+      - NODE_ENV=development
+      - DB_USER=postgres
+      - DB_HOST=db
+      - DB_NAME=postgres
+      - DB_PASS=123456
+      - DB_PORT=5432
